@@ -44,10 +44,8 @@ fn read_file_to_string<P: AsRef<Path>>(p: P) -> Result<String> {
     f.read_to_end(&mut reader)
         .chain_err(|| ErrorKind::IOError)?;
 
-    // detect encoding and decode to String
-    let chardet_result = chardet::detect(&reader);
-    let whtwg_label = chardet::charset2encoding(&chardet_result.0);
-    let coder = encoding::label::encoding_from_whatwg_label(whtwg_label);
+    // assume utf-8 and decode to String
+    let coder = encoding::label::encoding_from_whatwg_label("utf-8");
     let file_content = match coder {
         Some(c) => match c.decode(&reader, encoding::DecoderTrap::Ignore) {
             Ok(x) => x,
