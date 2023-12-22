@@ -2,7 +2,7 @@ extern crate chardet;
 extern crate encoding;
 
 use crate::parser::{parse_txt_header_str, parse_txt_lines_str};
-use crate::structs::{TXTSong, Source};
+use crate::structs::{Source, TXTSong};
 use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
@@ -63,7 +63,7 @@ fn canonicalize_path<B: AsRef<Path>>(
     path: &Option<Source>,
     base_path: B,
 ) -> Result<Option<Source>> {
-    Ok( if let Some(source) = path {
+    Ok(if let Some(source) = path {
         Some(match source {
             #[cfg(feature = "url-support")]
             Source::Remote(x) => Source::Remote(x.to_owned()),
@@ -102,10 +102,12 @@ pub fn parse_txt_song<P: AsRef<Path>>(path: P) -> Result<TXTSong> {
             canonicalize_path(&Some(txt_song.header.audio_path), base_path)?.unwrap();
 
         // canonicalize other path
-        txt_song.header.video_path = canonicalize_path(&txt_song.header.video_path, base_path)?;
-        txt_song.header.cover_path = canonicalize_path(&txt_song.header.cover_path, base_path)?;
+        txt_song.header.video_path =
+            canonicalize_path(&txt_song.header.video_path, base_path).unwrap_or_default();
+        txt_song.header.cover_path =
+            canonicalize_path(&txt_song.header.cover_path, base_path).unwrap_or_default();
         txt_song.header.background_path =
-            canonicalize_path(&txt_song.header.background_path, base_path)?;
+            canonicalize_path(&txt_song.header.background_path, base_path).unwrap_or_default();
     }
 
     Ok(txt_song)
